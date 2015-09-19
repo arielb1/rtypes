@@ -7,7 +7,7 @@ Created on Tue Sep 15 18:37:23 2015
 
 import struct
 
-mdfile = open('/home/ariel/Rust/rtypes/build/rust.metadata.bin', 'rb').read()
+mdfile = open('./build/librustc/rust.metadata.bin', 'rb').read()
 mdlen, = struct.unpack('!I', mdfile[:4])
 
 TY_TAG = 'TAG'
@@ -18,20 +18,20 @@ class WindowReader:
         self.cdata = data
         self.begin = begin
         self.end = end
-        
+
     def clone(self):
         return WindowReader(self.cdata, self.begin, self.end)
-        
+
     def size(self):
         return self.end - self.begin
-    
+
     def read(self, rlen=-1):
         if rlen < 0 or rlen > self.size():
             rlen = self.size()
         old_begin = self.begin
         self.begin += rlen
         return self.cdata[old_begin:self.begin]
-        
+
     def sublet(self, sub_len):
         if self.end - self.begin < sub_len:
             raise IndexError('end={} begin={} sub_len={}'.format(
@@ -40,7 +40,7 @@ class WindowReader:
         old_begin = self.begin
         self.begin += sub_len
         return WindowReader(self.cdata, old_begin, self.begin)
-        
+
     @property
     def data(self):
         return self.cdata[self.begin:self.end]
@@ -50,7 +50,7 @@ class Tag:
     @classmethod
     def read_len(klass, reader):
         return read_vuint(reader)
-    
+
 class ExplicitTag(Tag):
     @classmethod
     def read_len(klass, _reader):
@@ -119,7 +119,7 @@ class RBMLObject:
             return '%s(..%d)' % (tn, self.bin.size())
         return '%s(%d children)' % (tn, len(self.children))
     __str__ = __repr__
-            
+
 class Tags:
     class ExplicitU8(ExplicitTag):
         tag = 0x00; ty = TY_DATA; explicit_len = 1
@@ -167,7 +167,7 @@ class Tags:
     class Opaque(Tag):
         tag = 0x17; ty = TY_DATA
     class Root(Tag):
-        tag = 0x18; ty = TY_TAG        
+        tag = 0x18; ty = TY_TAG
     # 0x18-0x20 HOLE
     class Items(Tag):
         tag = 0x100; ty = TY_TAG
@@ -192,7 +192,11 @@ class Tags:
     class ItemsDataItemIsTupleStructCtor(Tag):
         tag = 0x29; ty = TY_DATA
     class Index(Tag):
-        tag = 0x2a; ty = TY_DATA
+        tag = 0x110; ty = TY_DATA
+    class XrefIndex(Tag):
+        tag = 0x111; ty = TY_DATA
+    class XrefData(Tag):
+        tag = 0x112; ty = TY_DATA
     class MetaItemNameValue(Tag):
         tag = 0x2f; ty = TY_TAG
     class MetaItemName(Tag):
@@ -223,8 +227,6 @@ class Tags:
         tag = 0x37; ty = TY_DATA
     class CrateDepExplicitlyLinked(Tag):
         tag = 0x38; ty = TY_DATA
-    class ModImpl(Tag):
-        tag = 0x39; ty = TY_DATA # killme
     class ItemTraitItem(Tag):
         tag = 0x3a; ty = TY_TAG
     class ItemTraitRef(Tag):
@@ -241,8 +243,6 @@ class Tags:
         tag = 0x40; ty = TY_DATA
     class ItemField(Tag):
         tag = 0x41; ty = TY_TAG
-    class ItemFieldOrigin(Tag):
-        tag = 0x42; ty = TY_DATA # killme
     class ItemVariances(Tag):
         tag = 0x43; ty = TY_TAG
     class ItemImplItem(Tag):
@@ -300,15 +300,11 @@ class Tags:
 #   class TableCaptureModes(Tag):
 #       tag = 0x67; unused
     class TagTableConstQualif(Tag):
-        tag = 0x69; ty = TY_TAG        
+        tag = 0x69; ty = TY_TAG
     class TableCastKinds(Tag):
         tag = 0x6a; ty = TY_TAG
     class ItemsTraitItemSort(Tag):
         tag = 0x70; ty = TY_DATA
-    class ItemsTraitParentSort(Tag):
-        tag = 0x71; ty = TY_DATA # killme
-    class ItemsImplTypeBasename(Tag):
-        tag = 0x72; ty = TY_DATA # killme
     class CrateTriple(Tag):
         tag = 0x105; ty = TY_DATA
     class DylibDependencyFormats(Tag):
@@ -397,11 +393,11 @@ class Tags:
         tag = 0x95; ty = TY_TAG
     class MethodTyGenerics(Tag):
         tag = 0x96; ty = TY_TAG
-    class Predicate(Tag):
-        tag = 0x97; ty = TY_TAG
-    class PredicateSpace(Tag):
+    class TypePredicate(Tag):
+        tag = 0x97; ty = TY_DATA
+    class SelfPredicate(Tag):
         tag = 0x98; ty = TY_DATA
-    class PredicateData(Tag):
+    class FnPredicate(Tag):
         tag = 0x99; ty = TY_DATA
     class Unsafety(Tag):
         tag = 0x9a; ty = TY_DATA
@@ -431,7 +427,7 @@ class Tags:
         tag = 0xa5; ty = TY_TAG
     class ItemsDataItemConstness(Tag):
         tag = 0xa6; ty = TY_DATA
-        
+
 TAG_MAP = {}
 for tv in Tags.__dict__.values():
     try:
@@ -440,7 +436,3 @@ for tv in Tags.__dict__.values():
     except TypeError:
         continue
     TAG_MAP[tv.tag] = tv
-
-        
-        
-        
