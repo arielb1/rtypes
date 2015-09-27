@@ -162,7 +162,11 @@ class Tags:
     class ItemsDataItemIsTupleStructCtor(Tag):
         tag = 0x29; ty = TY_DATA
     class Index(Tag):
-        tag = 0x2a; ty = TY_DATA
+        tag = 0x110; ty = TY_DATA
+    class XrefIndex(Tag):
+        tag = 0x111; ty = TY_DATA
+    class XrefData(Tag):
+        tag = 0x112; ty = TY_DATA
     class MetaItemNameValue(Tag):
         tag = 0x2f; ty = TY_TAG
     class MetaItemName(Tag):
@@ -193,8 +197,6 @@ class Tags:
         tag = 0x37; ty = TY_DATA
     class CrateDepExplicitlyLinked(Tag):
         tag = 0x38; ty = TY_DATA
-    class ModImpl(Tag):
-        tag = 0x39; ty = TY_DATA # killme
     class ItemTraitItem(Tag):
         tag = 0x3a; ty = TY_TAG
     class ItemTraitRef(Tag):
@@ -211,8 +213,6 @@ class Tags:
         tag = 0x40; ty = TY_DATA
     class ItemField(Tag):
         tag = 0x41; ty = TY_TAG
-    class ItemFieldOrigin(Tag):
-        tag = 0x42; ty = TY_DATA # killme
     class ItemVariances(Tag):
         tag = 0x43; ty = TY_TAG
     class ItemImplItem(Tag):
@@ -275,10 +275,6 @@ class Tags:
         tag = 0x6a; ty = TY_TAG
     class ItemsTraitItemSort(Tag):
         tag = 0x70; ty = TY_DATA
-    class ItemsTraitParentSort(Tag):
-        tag = 0x71; ty = TY_DATA # killme
-    class ItemsImplTypeBasename(Tag):
-        tag = 0x72; ty = TY_DATA # killme
     class CrateTriple(Tag):
         tag = 0x105; ty = TY_DATA
     class DylibDependencyFormats(Tag):
@@ -367,11 +363,11 @@ class Tags:
         tag = 0x95; ty = TY_TAG
     class MethodTyGenerics(Tag):
         tag = 0x96; ty = TY_TAG
-    class Predicate(Tag):
-        tag = 0x97; ty = TY_TAG
-    class PredicateSpace(Tag):
+    class TypePredicate(Tag):
+        tag = 0x97; ty = TY_DATA
+    class SelfPredicate(Tag):
         tag = 0x98; ty = TY_DATA
-    class PredicateData(Tag):
+    class FnPredicate(Tag):
         tag = 0x99; ty = TY_DATA
     class Unsafety(Tag):
         tag = 0x9a; ty = TY_DATA
@@ -415,7 +411,6 @@ def tagged_child(parent, child_tag):
         if child.tag == child_tag:
             return child
     return None
-
 #coredata = parse_rbml_data(Tags.Root, mdreader)
 #coretags = {tag:[] for tag in TAG_MAP.values()}
 #for tag in PARSED:
