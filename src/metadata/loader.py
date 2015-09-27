@@ -48,11 +48,11 @@ def metadata_from_ar(f):
             name, sep, more = name.partition(b'/')
             more = more.strip()
             if more:
-                assert name == ''
+                assert name == b''
                 nameoff = int(more)
                 name = names[nameoff:names.find(b'/', nameoff)]
             if name == b'rust.metadata.bin':
-                return size, f.read(size)
+                return f.read(size)
             f.seek(size, 1)
 
 def metadata_from_elf(f):
