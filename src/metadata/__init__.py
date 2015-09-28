@@ -13,9 +13,6 @@ except SystemError:
     import loader
     from loader import WindowReader
 
-TY_TAG = 'TAG'
-TY_DATA = 'DATA'
-
 class Tag:
     def __init__(self, reader):
         self.bin = reader.clone()
@@ -112,39 +109,39 @@ def parse_rbml_data(reader):
 
 class Tags:
     class ExplicitU8(ExplicitTag):
-        tag = 0x00; ty = TY_DATA; explicit_len = 1
+        tag = 0x00; explicit_len = 1
     class ExplicitU16(ExplicitTag):
-        tag = 0x01; ty = TY_DATA; explicit_len = 2
+        tag = 0x01; explicit_len = 2
     class ExplicitU32(ExplicitTag):
-        tag = 0x02; ty = TY_DATA; explicit_len = 4
+        tag = 0x02; explicit_len = 4
     class ExplicitU64(ExplicitTag):
-        tag = 0x03; ty = TY_DATA; explicit_len = 8
+        tag = 0x03; explicit_len = 8
     class ExplicitI8(ExplicitTag):
-        tag = 0x04; ty = TY_DATA; explicit_len = 1
+        tag = 0x04; explicit_len = 1
     class ExplicitI16(ExplicitTag):
-        tag = 0x05; ty = TY_DATA; explicit_len = 2
+        tag = 0x05; explicit_len = 2
     class ExplicitI32(ExplicitTag):
-        tag = 0x06; ty = TY_DATA; explicit_len = 4
+        tag = 0x06; explicit_len = 4
     class ExplicitI64(ExplicitTag):
-        tag = 0x07; ty = TY_DATA; explicit_len = 8
+        tag = 0x07; explicit_len = 8
     class ExplicitBool(ExplicitTag):
-        tag = 0x08; ty = TY_DATA; explicit_len = 1
+        tag = 0x08; explicit_len = 1
     class ExplicitChar(ExplicitTag):
-        tag = 0x09; ty = TY_DATA; explicit_len = 4
+        tag = 0x09; explicit_len = 4
     class ExplicitF32(ExplicitTag):
-        tag = 0x0a; ty = TY_DATA; explicit_len = 4
+        tag = 0x0a; explicit_len = 4
     class ExplicitF64(ExplicitTag):
-        tag = 0x0b; ty = TY_DATA; explicit_len = 8
+        tag = 0x0b; explicit_len = 8
     class ExplicitSub8(ExplicitTag):
-        tag = 0x0c; ty = TY_DATA; explicit_len = 1
+        tag = 0x0c; explicit_len = 1
     class ExplicitSub32(ExplicitTag):
-        tag = 0x0d; ty = TY_DATA; explicit_len = 4
+        tag = 0x0d; explicit_len = 4
     # 0x0e-0x10 HOLE
     class String(DataTag): tag = 0x10
-    class Enum(DataTag): tag = 0x11
-    class Vec(DataTag): tag = 0x12
-    class VecElt(DataTag): tag = 0x13
-    class Map(DataTag): tag = 0x14
+    class Enum(TreeTag): tag = 0x11
+    class Vec(TreeTag): tag = 0x12
+    class VecElt(TreeTag): tag = 0x13
+    class Map(TreeTag): tag = 0x14
     class MapKey(DataTag): tag = 0x15
     class MapVal(DataTag): tag = 0x16
     class Opaque(DataTag): tag = 0x17
@@ -197,8 +194,8 @@ class Tags:
     # GAP 0x49 - 0x4f
 
     # -- 0x50-0x6f: astencode tags
-    class Ast(DataTag): tag = 0x50
-    class Tree(TreeTag): tag = 0x51
+    class Ast(TreeTag): tag = 0x50
+    class Tree(DataTag): tag = 0x51
     # GAP 0x52
     class Table(TreeTag): tag = 0x53
     # GAP 0x54, 0x55
@@ -295,7 +292,8 @@ for tv in Tags.__dict__.values():
         continue
     TAG_MAP[tv.tag] = tv
 
-
+import sys
+sys.tag_stack=TAG_STACK
 s1lib=open('/home/ariel/Rust/s1lib/libcore-bb943c5a.rlib','rb')
 mdreader=loader.reader_from_metadata(loader.metadata_from_ar(s1lib))
 coredata = parse_rbml_data(mdreader)
